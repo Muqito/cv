@@ -4,31 +4,24 @@ on:
       - main
   pull_request:
 
-name: tests
-
 jobs:
-  tests:
-    name: tests
+  base:
     runs-on: ubuntu-latest
+    defaults:
+     run: |
+       sudo apt-get -y install libxkbcommon-dev
+
     steps:
-      - name: Install system dependencies
-        run: |
-          sudo apt-get -y install libxkbcommon-dev
-
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
         with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-
-      - uses: Swatinem/rust-cache@v1
+          command: fmt
+          args: --all -- --check
+      - name: Run cargo clippy
+        uses: actions-rs/cargo@v1
         with:
-          cache-on-failure: true
-
+          command: clippy
+          args: -- -D warnings
       - name: Run cargo test
         uses: actions-rs/cargo@v1
         with:
