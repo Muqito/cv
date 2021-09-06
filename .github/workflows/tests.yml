@@ -1,29 +1,37 @@
+name: Lints & test
+
 on:
   push:
     branches:
       - main
   pull_request:
 
-jobs:
-  base:
-    runs-on: ubuntu-latest
-    defaults:
-     run: |
-       sudo apt-get -y install libxkbcommon-dev
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TARGET_DIR: '${{ github.workspace }}/target'
+  NO_FMT_TEST: 1
 
+jobs:
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
     steps:
-      - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+      - uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
-      - name: Run cargo clippy
-        uses: actions-rs/cargo@v1
+      - uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: -- -D warnings
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
+      - uses: actions-rs/cargo@v1
         with:
           command: test
           args: --features cv/serde-serialize
