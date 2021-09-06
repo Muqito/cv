@@ -12,25 +12,25 @@ env:
   NO_FMT_TEST: 1
 
 jobs:
-  clippy:
-    name: Clippy
+  fmt:
+    name: cargo fmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
+  clippy:
+    name: cargo fmt
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: -- -D warnings
+  test: cargo test
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions-rs/cargo@v1
         with:
           command: test
