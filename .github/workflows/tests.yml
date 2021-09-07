@@ -9,6 +9,11 @@ name: tests
 jobs:
   tests:
     name: tests
+    env:
+      PROJECT_NAME_UNDERSCORE: rust_ci_github_actions_workflow
+      CARGO_INCREMENTAL: 0
+      RUSTFLAGS: -Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort
+      RUSTDOCFLAGS: -Cpanic=abort
     runs-on: ubuntu-latest
     steps:
       - name: Install system dependencies
@@ -25,12 +30,20 @@ jobs:
           toolchain: nightly
           override: true
 
-      - uses: Swatinem/rust-cache@v1
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-dependencies
         with:
-          cache-on-failure: true
+          path: |
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            target
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --features cv/serde-serialize
+        run: |
+          cargo test --features cv/serde-serialize --no-fail-fast

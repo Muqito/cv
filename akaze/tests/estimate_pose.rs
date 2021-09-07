@@ -72,7 +72,7 @@ fn estimate_pose() {
     );
 
     // Ensures the underlying algorithms don't change at all.
-    assert_eq!(inliers.len(), 35);
+    assert_eq!(inliers.len(), 28);
 }
 
 fn match_descriptors(ds1: &[Descriptor], ds2: &[Descriptor]) -> Vec<(usize, usize)> {
